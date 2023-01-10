@@ -2,7 +2,6 @@
 pragma solidity ^0.7.6;
 pragma abicoder v2;
 import "./OpsReady.sol";
-import "hardhat/console.sol";
 
 /**
  * @dev Inherit this contract to allow your smart contract
@@ -36,8 +35,6 @@ abstract contract OpsTaskCreator is OpsReady {
 
     function _depositFunds(uint256 _amount, address _token) internal {
         uint256 ethValue = _token == ETH ? _amount : 0;
-        console.log(ethValue, address(taskTreasury));
-
         taskTreasury.depositFunds{value: ethValue}(
             address(this),
             _token,

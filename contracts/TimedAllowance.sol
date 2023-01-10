@@ -5,7 +5,6 @@ import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
 
 contract TimedAllowance is Ownable {
     using SafeERC20 for IERC20;
@@ -19,7 +18,6 @@ contract TimedAllowance is Ownable {
     mapping(address => mapping(address => mapping(address => mapping(address => ApprovalInfo)))) public orderAllowances;
 
     function approve(address to, address tokenIn, address tokenOut, uint256 amount, uint256 resetTime) public {
-        console.log(tx.origin, address(this));
         require(IERC20(tokenIn).allowance(tx.origin, address(this)) > 0, "TimedAllowance : Please approve ERC20 first");
         
         // using tx origin ensures that nobody apart from the actual signer can modify their orderAllowances

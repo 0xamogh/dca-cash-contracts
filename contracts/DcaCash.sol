@@ -10,7 +10,6 @@ import "./TimedAllowance.sol";
 import "./lib/LibERC20Token.sol";
 import "./lib/Types.sol";
 import "./lib/OpsTaskCreator.sol";
-import "hardhat/console.sol";
 
 contract DcaCash is Ownable, OpsTaskCreator {
 
@@ -19,7 +18,6 @@ contract DcaCash is Ownable, OpsTaskCreator {
 
     IUniswapV3Factory public constant factory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
     ISwapRouter public constant swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-    // address public MATIC_ADDRESS = 0x0000000000000000000000000000000000001010;
     TimedAllowance public timedAllowance;
 
     mapping(bytes32 => address) taskIdOwners;    
