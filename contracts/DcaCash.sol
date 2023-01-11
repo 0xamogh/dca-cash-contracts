@@ -10,6 +10,7 @@ import "./TimedAllowance.sol";
 import "./lib/LibERC20Token.sol";
 import "./lib/Types.sol";
 import "./lib/OpsTaskCreator.sol";
+import "hardhat/console.sol";
 
 contract DcaCash is Ownable, OpsTaskCreator {
 
@@ -45,12 +46,14 @@ contract DcaCash is Ownable, OpsTaskCreator {
 
         // Get UniV3 pool address
         address pool = factory.getPool(tokenIn, tokenOut, poolFee);
-
+        console.log("pool : ", pool);
+        
         // LibERC20Token (approve if below)
         LibERC20Token.approveIfBelow(tokenIn, address(swapRouter), amountIn);
         
         // Allow for 5% slippage
         uint256 quote = FullMath.mulDiv(getQuote(pool, amountIn, tokenIn, tokenOut), 95, 100);
+        console.log("DcaCash.sol:56 ~ executeSwap ~ quote", quote);
 
         // Create swap data
         ISwapRouter.ExactInputSingleParams memory params =

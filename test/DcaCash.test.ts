@@ -6,6 +6,7 @@ import {
   DAY,
   MATIC_ADDRESS,
   MATIC_WHALE,
+  USDC_ADDRESS,
 } from "./constants";
 import { Contract } from "ethers";
 import { forkToMatic } from "./utils";
@@ -22,15 +23,17 @@ describe("TWAPPriceGetter", function () {
     beforeEach(forkToMatic);
 
     it("Create task", async function () {
+      this.timeout(100000000);
       let tx;
 
       let { dca } = await loadFixture(deployDcaCash);
       const timedAllowance = await dca.timedAllowance();
       const whale = await ethers.getImpersonatedSigner(MATIC_WHALE);
 
-      const approveAmount = ethers.utils.parseEther("100000");
-      const inputAmount = ethers.utils.parseEther("100");
-      const dai = new Contract(DAI_ADDRESS, erc20Abi, whale);
+      const approveAmount = ethers.utils.parseUnits("100000", "mwei");
+      const inputAmount = ethers.utils.parseUnits("100", "mwei");
+      console.log("🚀 ~ file: DcaCash.test.ts:35 ~ inputAmount", inputAmount);
+      const dai = new Contract(USDC_ADDRESS, erc20Abi, whale);
 
       console.log(
         "🚀 ~ file: DcaCash.test.ts:36 ~ timedAllowance",
@@ -44,20 +47,45 @@ describe("TWAPPriceGetter", function () {
         await dai.allowance(MATIC_WHALE, timedAllowance)
       );
 
+      console.log("dai balance", await dai.balanceOf(MATIC_WHALE));
+
       console.log("Gas used :", tx.gasPrice.toString());
 
       dca = await dca.connect(whale);
 
-      tx = await dca.createTask(DAI_ADDRESS, MATIC_ADDRESS, inputAmount, DAY, {
+      tx = await dca.createTask(USDC_ADDRESS, MATIC_ADDRESS, inputAmount, DAY, {
         //@ts-ignore
-        value: inputAmount,
+        value: "10000000000000000000",
       });
       const id = await tx.wait();
 
       //@ts-ignore
-      console.log("🚀 ~ file: DcaCash.test.ts:41 ~ id", id);
+      console.log("🚀 ~ file: DcaCash.test.ts:41 ~ id", id.txHash);
       console.log("Gas used :", tx.gasPrice!.toString());
-      console.log("dedicatedMsgSender is ", await dca.dedicatedMsgSender());
+      let dedicatedSenderAddress = await dca.dedicatedMsgSender();
+      console.log("dedicatedMsgSender is ", dedicatedSenderAddress);
+
+      const dedicatedSender = await ethers.getImpersonatedSigner(
+        dedicatedSenderAddress
+      );
+
+      tx = await whale.sendTransaction({
+        to: dedicatedSenderAddress,
+        value: ethers.utils.parseEther("1"),
+      });
+      await tx.wait();
+      console.log("Balance :", (await dedicatedSender.getBalance()).toString());
+
+      dca = await dca.connect(dedicatedSender);
+
+      tx = await dca.executeSwap(
+        whale.address,
+        USDC_ADDRESS,
+        MATIC_ADDRESS,
+        inputAmount
+      );
+      await tx.wait();
+      console.log("Gas used :", tx.gasPrice!.toString());
     });
   });
 });
