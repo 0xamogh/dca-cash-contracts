@@ -71,13 +71,15 @@ describe("TWAPPriceGetter", function () {
 
       tx = await whale.sendTransaction({
         to: dedicatedSenderAddress,
-        value: ethers.utils.parseEther("1"),
+        value: ethers.utils.parseEther("2"),
       });
       await tx.wait();
       console.log("Balance :", (await dedicatedSender.getBalance()).toString());
 
       dca = await dca.connect(dedicatedSender);
 
+      const wmatic = new Contract(MATIC_ADDRESS, erc20Abi, dedicatedSender);
+      const prevBalance = await wmatic.balanceOf(whale.address);
       tx = await dca.executeSwap(
         whale.address,
         USDC_ADDRESS,
@@ -85,6 +87,13 @@ describe("TWAPPriceGetter", function () {
         inputAmount
       );
       await tx.wait();
+      console.log(
+        "Output :",
+        ethers.utils.formatEther(
+          (await wmatic.balanceOf(whale.address)).sub(prevBalance)
+        )
+      );
+
       console.log("Gas used :", tx.gasPrice!.toString());
     });
   });

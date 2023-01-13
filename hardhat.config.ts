@@ -48,10 +48,10 @@ const config: HardhatUserConfig = {
   networks: {
     matic: {
       url: `https://polished-polished-sky.matic.quiknode.pro/89584db94423d9ece9752c758bfd55f1b07bb7bf/`,
-      accounts: [privateKey],
+      accounts: [privateKey!],
       forking: {
         url: `https://polished-polished-sky.matic.quiknode.pro/89584db94423d9ece9752c758bfd55f1b07bb7bf/`,
-        blockNumber: 37853238,
+        blockNumber: 38019624,
       },
     },
   },
